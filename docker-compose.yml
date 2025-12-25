@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount python-scripts to allow hot-reloading scripts without providing a full rebuild
+      # Note: For Java code changes, a rebuild is still required unless using DevTools/Jib/etc.
+      - ./python-scripts:/python-scripts
+    restart: always

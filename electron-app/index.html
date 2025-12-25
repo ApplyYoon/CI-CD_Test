@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electron + Spring + Python</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 2rem;
+            color: #2d3436;
+        }
+        .status-box {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        button {
+            background: #0984e3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.1s, background 0.2s;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background: #0773c5;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .label {
+            font-size: 0.8rem;
+            color: #636e72;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .data {
+            font-weight: 600;
+            color: #2d3436;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard</h1>
+        
+        <div class="status-box" id="spring-box">
+            <span class="label">Spring Boot Status</span>
+            <span class="data" id="spring-data">Waiting...</span>
+        </div>
+
+        <div class="status-box" id="python-box">
+            <span class="label">Python Script Output</span>
+            <span class="data" id="python-data">Waiting...</span>
+        </div>
+
+        <button onclick="fetchData()">Refresh Data</button>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const springEl = document.getElementById('spring-data');
+            const pythonEl = document.getElementById('python-data');
+
+            springEl.innerText = "Loading...";
+            pythonEl.innerText = "Loading...";
+
+            try {
+                // Call Spring Boot Hello
+                const res1 = await fetch('http://localhost:8080/api/hello');
+                const data1 = await res1.json();
+                springEl.innerText = data1.message;
+            } catch (e) {
+                springEl.innerText = "Error connecting to backend";
+                console.error(e);
+            }
+
+            try {
+                // Call Spring Boot -> Python
+                const res2 = await fetch('http://localhost:8080/api/python');
+                const data2 = await res2.json();
+                if (data2.message) {
+                    pythonEl.innerText = data2.message + " (v" + data2.version.split(' ')[0] + ")";
+                } else if (data2.error) {
+                    pythonEl.innerText = "Error: " + data2.error;
+                }
+            } catch (e) {
+                pythonEl.innerText = "Error connecting to backend";
+                console.error(e);
+            }
+        }
+
+        // Initial fetch
+        setTimeout(fetchData, 1000);
+    </script>
+</body>
+</html>
